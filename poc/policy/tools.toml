@@ -1,0 +1,30 @@
+# Tool registry: one definition per tool. The gateway refuses to load an incomplete one.
+# The tool's team owns its definition. Support Ops owns the [*.auto_approve] conditions,
+# and Finance signs off those that move money.
+# Hard ceilings are not here: they live in ceilings.toml and belong to Finance and Legal.
+
+[issue_refund]
+owner = "payments-team"
+wraps = "billing.refund"
+risk_tier = 3
+request_types = ["duplicate_charge", "refund_request", "downgrade_with_refund"]
+idempotency_key = ["case_id", "charge_id"]
+undo = "none: irreversible, Finance decides case by case"
+kill_switch = "issue_refund"
+returns = ["refund_id", "amount", "currency"]
+approval_roles = ["support_lead"]
+
+[issue_refund.inputs]  # the only fields the model may supply: references and fixed lists, never amounts
+charge_id = { type = "charge_ref" }
+reason = { type = "enum", values = ["duplicate_charge", "service_outage", "cancelled_within_14_days", "other"] }
+
+[issue_refund.auto_approve]  # owner: Support Ops
+max_amount = 100.00
+reasons = ["duplicate_charge", "cancelled_within_14_days"]  # and billing data must confirm the reason
+max_charge_age_days = 30
+no_refund_within_days = 90
+hourly_cap = 2000.00  # total value of auto-approved refunds per rolling hour, across all cases
+
+[issue_refund.templates]  # what the customer is told, filled only from confirmed results
+executed = "We've refunded {amount} {currency} to your original payment method (ref {refund_id}). It usually arrives within 5-10 business days."
+pending_approval = "We've received your refund request. A member of our team reviews it before anything is processed, and we'll message you here as soon as it's done."

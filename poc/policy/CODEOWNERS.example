@@ -1,0 +1,4 @@
+# Example only: GitLab reads CODEOWNERS from the repository root, docs/ or .gitlab/.
+# Changes to the hard ceilings need a Finance approver; changes to tools need the owning team.
+poc/policy/ceilings.toml  @helia/finance-approvers
+poc/policy/tools.toml     @helia/payments @helia/agent-platform

@@ -1,0 +1,10 @@
+# Hard ceilings: owned by Finance and Legal. They override every auto-approve rule, and the
+# registry refuses to load an auto-approve limit set above one.
+# A change here needs Finance or Legal review and a test.
+
+[[ceiling]]
+id = "refunds-over-1000-need-finance"
+tool = "issue_refund"
+owner = "finance"
+amount_above = 1000.00
+require_roles = ["support_lead", "finance"]
